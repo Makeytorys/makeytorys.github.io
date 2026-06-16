@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Makeytorys — Commission & Loop Animations</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #06070d;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .comfortaa {
+            font-family: 'Comfortaa', sans-serif;
+        }
+
+        /* Ambient glowing background */
+        .neon-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 10% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
+            background-size: cover;
+        }
+
+        /* 
+           ЗАДНИЙ ФОН САЙТА:
+           Ты можешь заменить ссылку внутри url('...') на ссылку на свой полноценный арт!
+        */
+        .art-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            background-image: linear-gradient(rgba(6, 7, 13, 0.6), rgba(6, 7, 13, 0.9)), 
+                              url('https://images.unsplash.com/photo-1515462277126-270d878326e5?auto=format&fit=crop&q=80&w=1920');
+            background-size: cover;
+            background-position: center;
+            filter: saturate(1.2);
+        }
+
+        /* Glassmorphism containers matching friend's layout */
+        .glass-card {
+            background: rgba(13, 14, 22, 0.55);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 25px 60px rgba(139, 92, 246, 0.1);
+        }
+
+        /* Active pricing card highlight */
+        .pricing-active {
+            border-color: rgba(139, 92, 246, 0.8) !important;
+            background: rgba(139, 92, 246, 0.08) !important;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #06070d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #222533;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b3f5c;
+        }
+
+        /* Rain Canvas Style */
+        #rain-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-10 px-4 md:px-0">
+
+    <!-- Background Layers -->
+    <div class="art-backdrop"></div>
+    <div class="neon-bg"></div>
+    <canvas id="rain-canvas"></canvas>
+
+    <!-- Main content stack imitating the Carrd vertical stream -->
+    <div class="max-w-[620px] mx-auto space-y-6">
+
+        <!-- BLOCK 1: PROFILE & BIO -->
+        <div class="glass-card rounded-[2.5rem] p-8 text-center flex flex-col items-center gap-6">
+            <!-- Profile Avatar Container -->
+            <div class="relative group">
+                <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 animate-pulse blur-md opacity-45"></div>
+                <div class="w-28 h-28 rounded-full overflow-hidden border-2 border-purple-500/50 p-1 relative z-10 bg-[#0d0e16]">
+                    <!-- АВАТАРКА: Здесь используется прямая и рабочая ссылка на твой рисунок с Imgur -->
+                    <img src="https://i.imgur.com/MeCx2sx.png" alt="Makeytorys Avatar" class="w-full h-full object-cover rounded-full" id="profile-avatar">
+                </div>
+            </div>
+
+            <!-- Profile Info -->
+            <div class="space-y-2">
+                <h1 class="text-3xl font-bold tracking-wide text-white comfortaa">Makeytorys</h1>
+                <!-- Без мигающего кружка слева, только стильный фиолетовый текст -->
+                <p class="text-purple-400 text-xs font-semibold uppercase tracking-widest flex items-center justify-center gap-2">
+                    Illustrator & Animator
+                </p>
+                <p class="text-sm text-slate-300 max-w-md mx-auto leading-relaxed pt-2">
+                    Hi! I create artwork and animations. Welcome to my commission workshop. Scroll below to explore details!
+                </p>
+            </div>
+
+            <!-- Social Links / Buttons -->
+            <div class="grid grid-cols-3 gap-3 w-full max-w-sm mt-2">
+                <!-- Discord Button (Копирует никнейм по клику) -->
+                <button onclick="copyContact('makeytorys', 'discord-btn', 'Discord')" id="discord-btn" class="flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-500/40 hover:bg-white/10 transition-all group">
+                    <i class="fa-brands fa-discord text-xl text-indigo-400 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">Discord</span>
+                </button>
+                
+                <!-- Patreon Button (Переход по внешней ссылке) -->
+                <a href="https://patreon.com/makeytorys" target="_blank" class="flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl bg-white/5 border border-white/10 hover:border-rose-500/40 hover:bg-white/10 transition-all group">
+                    <i class="fa-brands fa-patreon text-xl text-rose-400 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">Patreon</span>
+                </a>
+
+                <!-- X (Twitter) Button (Автоматически переводит на твой аккаунт) -->
+                <a href="https://x.com/makeytorys" target="_blank" class="flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl bg-white/5 border border-white/10 hover:border-sky-500/40 hover:bg-white/10 transition-all group">
+                    <i class="fa-brands fa-x-twitter text-xl text-slate-200 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">Twitter (X)</span>
+                </a>
+            </div>
+            
+            <div id="copy-toast" class="hidden text-xs bg-purple-950/80 border border-purple-500/30 text-purple-200 px-4 py-2 rounded-full animate-bounce">
+                Никнейм успешно скопирован!
+            </div>
+        </div>
+
+        <!-- BLOCK 2: INTERACTIVE PRICING & TIERS -->
+        <div class="glass-card rounded-[2.5rem] p-8 flex flex-col gap-6">
+            <div class="text-center">
+                <h2 class="text-xl font-bold uppercase tracking-wider text-white comfortaa">Commission Packages</h2>
+                <p class="text-slate-400 text-xs mt-1">Select a package & customize add-ons to estimate your price</p>
+                <!-- Зеленые плашки удалены по твоей просьбе, дизайн стал аккуратнее -->
+            </div>
+
+            <!-- Dynamic Package Selector Cards -->
+            <div class="grid grid-cols-1 gap-4">
+                <!-- Static Poster -->
+                <div onclick="selectTier('poster', 30)" id="tier-poster" class="pricing-active p-5 rounded-2xl bg-white/[0.02] border border-white/5 cursor-pointer transition-all flex justify-between items-center group">
+                    <div class="space-y-1 pr-4">
+                        <span class="text-sm font-semibold text-white tracking-wide flex items-center gap-2">
+                            <i class="fa-solid fa-image text-purple-400"></i> Poster (Static)
+                        </span>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            1 character, standard pose, basic lighting. <strong class="text-slate-200">4K resolution, complex background, toys & props included for FREE.</strong>
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xl font-bold text-purple-300 comfortaa">$30</span>
+                        <p class="text-[9px] uppercase tracking-wider text-slate-500">Base Price</p>
+                    </div>
+                </div>
+
+                <!-- Loop Tier 1 -->
+                <div onclick="selectTier('tier1', 80)" id="tier-tier1" class="p-5 rounded-2xl bg-white/[0.02] border border-white/5 cursor-pointer transition-all flex justify-between items-center group">
+                    <div class="space-y-1 pr-4">
+                        <span class="text-sm font-semibold text-white tracking-wide flex items-center gap-2">
+                            <i class="fa-solid fa-video text-purple-400 animate-pulse"></i> Loop Animation (Tier 1)
+                        </span>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            ~10 seconds, 1 position, 1-2 characters, basic lighting, basic audio included. <strong class="text-slate-200">4K resolution, complex background, toys & props included for FREE.</strong>
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xl font-bold text-purple-300 comfortaa">$80</span>
+                        <p class="text-[9px] uppercase tracking-wider text-slate-500">Base Price</p>
+                    </div>
+                </div>
+
+                <!-- Loop Tier 2 -->
+                <div onclick="selectTier('tier2', 140)" id="tier-tier2" class="p-5 rounded-2xl bg-white/[0.02] border border-white/5 cursor-pointer transition-all flex justify-between items-center group">
+                    <div class="space-y-1 pr-4">
+                        <span class="text-sm font-semibold text-white tracking-wide flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i> Loop + Ending (Tier 2)
+                        </span>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            ~20 seconds, 1 position, 1-2 characters, audio, basic lighting, basic cum simulation. <strong class="text-slate-200">4K resolution, complex background, toys & props included for FREE.</strong>
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xl font-bold text-purple-300 comfortaa">$140</span>
+                        <p class="text-[9px] uppercase tracking-wider text-slate-500">Base Price</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Paid Add-Ons checklist (Только платные дополнения) -->
+            <div class="bg-purple-950/10 border border-purple-900/20 rounded-2xl p-5 space-y-4">
+                <h4 class="text-xs font-bold text-purple-300 tracking-wider uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-square-plus"></i> Select Paid Add-Ons
+                </h4>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                    <!-- Add-on 1 -->
+                    <label class="flex items-center justify-between p-2.5 rounded-lg bg-[#11121d] border border-white/5 cursor-pointer select-none hover:border-purple-500/30 transition-all">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" value="25" onchange="updateTotal()" class="addon-check accent-purple-500 h-4 w-4 rounded">
+                            <span>Extra character</span>
+                        </div>
+                        <span class="font-bold text-purple-300">+$25</span>
+                    </label>
+
+                    <!-- Add-on 2 -->
+                    <label class="flex items-center justify-between p-2.5 rounded-lg bg-[#11121d] border border-white/5 cursor-pointer select-none hover:border-purple-500/30 transition-all">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" value="50" onchange="updateTotal()" class="addon-check accent-purple-500 h-4 w-4 rounded">
+                            <span>Privacy / Portfolio</span>
+                        </div>
+                        <span class="font-bold text-purple-300">+$50</span>
+                    </label>
+
+                    <!-- Add-on 3 (Fluids / Sweat за $20) -->
+                    <label class="flex items-center justify-between p-2.5 rounded-lg bg-[#11121d] border border-white/5 cursor-pointer select-none hover:border-purple-500/30 transition-all">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" value="20" onchange="updateTotal()" class="addon-check accent-purple-500 h-4 w-4 rounded">
+                            <span>Fluids / Sweat</span>
+                        </div>
+                        <span class="font-bold text-purple-300">+$20</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Dynamic price footer -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-purple-900/20 border border-purple-500/20 rounded-2xl p-4 gap-3">
+                <div>
+                    <span class="text-xs uppercase tracking-widest text-purple-300 font-bold block">Estimated Cost</span>
+                    <span class="text-[10px] text-slate-400">Patreon or custom transaction details apply</span>
+                </div>
+                <div class="text-left sm:text-right">
+                    <span class="text-3xl font-extrabold text-white comfortaa" id="estimated-total">$30</span>
+                </div>
+            </div>
+
+            <!-- Custom User Notice -->
+            <p class="text-xs text-center text-slate-400 italic bg-white/5 border border-white/5 p-3 rounded-xl leading-relaxed">
+                "The final price and payment method may vary; this can always be discussed upon request. Don't hesitate to write."
+            </p>
+        </div>
+
+        <!-- BLOCK 3: RULES / GUIDELINES -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- Column 1: I Work With -->
+            <div class="glass-card rounded-[2rem] p-6 space-y-4">
+                <h3 class="text-sm font-bold tracking-wider uppercase text-emerald-400 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check"></i> I Work With
+                </h3>
+                <ul class="text-[11px] text-slate-300 space-y-2.5">
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-check text-emerald-500 mt-0.5 flex-shrink-0"></i>
+                        <span>Cum simulation / heavy cum effects</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-check text-emerald-500 mt-0.5 flex-shrink-0"></i>
+                        <span>Adult lactation</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-check text-emerald-500 mt-0.5 flex-shrink-0"></i>
+                        <span>Tentacles / fantasy non-human elements (consensual)</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-check text-emerald-500 mt-0.5 flex-shrink-0"></i>
+                        <span>Adult furry / anthro characters</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-check text-emerald-500 mt-0.5 flex-shrink-0"></i>
+                        <span>Crossdressing / genderplay (adults) / LGBT</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-check text-emerald-500 mt-0.5 flex-shrink-0"></i>
+                        <span>Public / exhibitionism scenarios</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-check text-emerald-500 mt-0.5 flex-shrink-0"></i>
+                        <span>Extreme size differences (macro / micro)</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Column 2: I Will Not Do -->
+            <div class="glass-card rounded-[2rem] p-6 space-y-4">
+                <h3 class="text-sm font-bold tracking-wider uppercase text-rose-400 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-xmark"></i> Will NOT Do
+                </h3>
+                <ul class="text-[11px] text-slate-300 space-y-2.5">
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-xmark text-rose-500 mt-0.5 flex-shrink-0"></i>
+                        <span>Scat / feces / urine</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-xmark text-rose-500 mt-0.5 flex-shrink-0"></i>
+                        <span>Vore / gore</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-xmark text-rose-500 mt-0.5 flex-shrink-0"></i>
+                        <span>Breath-play / asphyxiation depictions</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-xmark text-rose-500 mt-0.5 flex-shrink-0"></i>
+                        <span>Bestiality / sex with animals / necrophilia</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-xmark text-rose-500 mt-0.5 flex-shrink-0"></i>
+                        <span>Underage themes / loli / shota</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-xmark text-rose-500 mt-0.5 flex-shrink-0"></i>
+                        <span>Non-consensual / rape scenarios</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-xmark text-rose-500 mt-0.5 flex-shrink-0"></i>
+                        <span>Extreme BDSM causing real injury</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- BLOCK 4: TERMS & DISCLAIMERS -->
+        <div class="glass-card rounded-[2rem] p-8 space-y-4">
+            <h3 class="text-sm font-bold text-white tracking-widest uppercase flex items-center gap-2 comfortaa">
+                <i class="fa-solid fa-circle-info text-purple-400"></i> Terms of Service
+            </h3>
+            
+            <div class="text-[11px] text-slate-400 space-y-3 leading-relaxed">
+                <div class="border-b border-white/5 pb-2">
+                    <span class="font-bold text-slate-200 uppercase tracking-wide block mb-0.5">Payment</span>
+                    100% upfront payment. Preferably Crypto USDT (Bybit) or Visa.
+                </div>
+                <div class="border-b border-white/5 pb-2">
+                    <span class="font-bold text-slate-200 uppercase tracking-wide block mb-0.5">Revisions</span>
+                    Minor revisions are free, but major changes will require an additional fee (price is determined individually).
+                </div>
+                <div class="border-b border-white/5 pb-2">
+                    <span class="font-bold text-slate-200 uppercase tracking-wide block mb-0.5">Usage & Copyright</span>
+                    Artwork is yours for personal usage. Copyright and intellectual properties remain with Makeytorys.
+                </div>
+                <div class="pb-1">
+                    <span class="font-bold text-slate-200 uppercase tracking-wide block mb-0.5">Refund Policy</span>
+                    No refunds once creation moves past final sketching or draft-approval phases.
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer watermark -->
+        <div class="text-center text-[10px] text-slate-600 tracking-widest pt-4">
+            © MAKEYTORYS • POWERED BY MODERN EMBED CODES
+        </div>
+
+    </div>
+
+    <!-- Interactive Logic & Rain Particle System -->
+    <script>
+        // Track Base Price state (Defaults to Poster $30)
+        let activeBasePrice = 30;
+
+        // Custom function to handle Tier selection
+        function selectTier(tierId, price) {
+            // Reset active state for all packages
+            document.querySelectorAll('[id^="tier-"]').forEach(el => {
+                el.classList.remove('pricing-active');
+            });
+
+            // Set active class
+            document.getElementById('tier-' + tierId).classList.add('pricing-active');
+            activeBasePrice = price;
+
+            updateTotal();
+        }
+
+        // Calculate and update running total
+        function updateTotal() {
+            let total = activeBasePrice;
+            
+            // Loop checkboxes
+            document.querySelectorAll('.addon-check').forEach(box => {
+                if(box.checked) {
+                    total += parseInt(box.value);
+                }
+            });
+
+            document.getElementById('estimated-total').textContent = '$' + total;
+        }
+
+        // Beautiful Copy to Clipboard with custom notification toaster (NO ALERTS)
+        function copyContact(text, btnId, platformName) {
+            // Clipboard fallback logic
+            const tempEl = document.createElement('textarea');
+            tempEl.value = text;
+            document.body.appendChild(tempEl);
+            tempEl.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempEl);
+
+            // Toast feedback
+            const toast = document.getElementById('copy-toast');
+            toast.textContent = `Username "${text}" copied to clipboard!`;
+            toast.classList.remove('hidden');
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        /* Ambient Dynamic Rain Generator on Canvas */
+        window.onload = function() {
+            const canvas = document.getElementById('rain-canvas');
+            const ctx = canvas.getContext('2d');
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            // Rain parameters
+            const maxDrops = 60;
+            const drops = [];
+
+            for (let i = 0; i < maxDrops; i++) {
+                drops.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    length: Math.random() * 15 + 10,
+                    speed: Math.random() * 8 + 4,
+                    opacity: Math.random() * 0.12 + 0.05
+                });
+            }
+
+            function animateRain() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.strokeStyle = 'rgba(168, 85, 247, 0.4)'; // light neon tint drops
+                ctx.lineWidth = 1.2;
+
+                for (let i = 0; i < maxDrops; i++) {
+                    const d = drops[i];
+                    ctx.beginPath();
+                    ctx.moveTo(d.x, d.y);
+                    ctx.lineTo(d.x - 1, d.y + d.length); // slightly diagonal wind
+                    ctx.stroke();
+
+                    d.y += d.speed;
+                    d.x -= 0.5;
+
+                    if (d.y > canvas.height) {
+                        d.y = -d.length;
+                        d.x = Math.random() * canvas.width;
+                    }
+                }
+                requestAnimationFrame(animateRain);
+            }
+
+            animateRain();
+        };
+    </script>
+</body>
+</html>
